@@ -1,7 +1,39 @@
 const chatBtn = document.querySelector('#chatBtn');
 const chatRoom = document.querySelector('#chatRoom');
 
-chatBtn.addEventListener('click',async()=>{
+
+let socket = io();
+
+
+let flag = undefined;
+
+
+chatBtn.addEventListener('click',()=>{
+    switch(flag){
+        case true:
+            //열린 상태서 다시 누를 때>> 닫히는 기능 
+            flag = false;
+            chatRoom.style.display = 'none';
+            
+        break;
+        case false:
+            flag = true;
+            //처음 제외하고 다시 열릴때
+            chatRoom.style.display = "block";
+            chatBtn.innerHTML = '채팅';
+            chatBtn.dataset.value = 0;
+            
+        break;
+        case undefined:
+            //음으로 이 버튼을 눌렀을 때
+            flag = true;
+            getChatRoom();
+
+        break;
+    }
+});
+
+async function getChatRoom(){
     let url = "http://localhost:3000/chat";
     let options = {
         method:"get"
@@ -19,10 +51,46 @@ chatBtn.addEventListener('click',async()=>{
     }else{
         chatRoom.innerHTML = result;
         //로그인 처리가 잘 되었을때
-    
+        socketChat();
     }   
-    }
-);
+}
+
+function send(){
+    const msg = document.querySelector('#msg');
+    console.log(msg.value);
+    socket.emit(`send`,msg.value);
+    addCard(msg.value,'my')
+    msg.value='';
+}
+
+ 
+function addCard(text,type,id){
+    //type:my | you
+    const chat = document.querySelector('#chat');
+    const div = document.createElement('div');
+    const span = document.createElement('span');
+    if(id){span.innerHTML = `<div>id:${id}</div><div>${text}</div>`;}
+    else{span.innerHTML = `${text}`;}
+    span.classList.add(type);
+    div.appendChild(span);
+    chat.appendChild(div);
+    chat.scrollTop=chat.scrollHeight;
+}
+
+function socketChat(){
+    socket.on('connect',()=>{});
+    
+    socket.on('msg',(data,id)=>{
+        chatBtn.dataset.value =parseInt(chatBtn.dataset.value)+1;
+        //dataset.
+        if(flag == false){
+            //창이 닫혀있을 때 작업
+            chatBtn.innerHTML=`채팅<span style="color:red; padding:2px">${chatBtn.dataset.value}</span>`
+        }
+        addCard(data,'you',id)
+    })
+
+}
 
 function isJson(str){
     try{

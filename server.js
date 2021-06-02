@@ -7,8 +7,13 @@ const nunjucks = require('nunjucks')
 const bodyParser = require('body-parser')
 const auth = require('./middleware/auth')
 const {sequelize, User} = require('./models')
+//socket.io 세팅
+const socket = require('socket.io');
 
-
+const http = require('http');
+const server = http.createServer(app);
+const io = socket(server);
+/////
 app.set('view engine', 'html')
 
 app.use(express.static('public'));
@@ -92,11 +97,39 @@ app.post('/auth/local/login',async (req,res)=>{
     res.json(result)
 })
 
+
+
 app.get('/chat',auth,(req,res)=>{
     //res.send('조금만 자고싶다<br>쉬는시간에 바로 잠들자')
     res.render('chat')//nunjucks를 통해서 thml로 render해서 보내줌
-}),
+})
 
-app.listen(3000,()=>{
+let id;
+
+io.sockets.on('connection',socket=>{
+    let cookieString = socket.handshake.headers.cookie;
+    if(cookieString!= undefined){
+        let cookieAccess=cookieString.split(';');
+        cookieAccess.forEach(v=>{
+            let [name,value] = v.split('=');
+            if(name.trim()== 'AccessToken'){
+                let jwt = value.split('.');
+                let payload = Buffer.from(jwt[1],'base64').toString();
+                let {userid} = JSON.parse(payload);
+                id = userid;
+            }console.log(id);
+        })
+    }   
+    console.log(id);//coockie가 들어있음. 어딘가에 id가 숨겨져있고, 복호화해야함.
+
+    socket.on(`send`,data=>{
+        console.log(data);
+        socket.broadcast.emit(`msg`,data,id)
+    })
+
+
+
+})
+server.listen(3000,()=>{
     console.log('server start port: 3000');
 })

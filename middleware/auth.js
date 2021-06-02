@@ -17,7 +17,8 @@ module.exports = (req,res,next)=>{
 
     if(sign != signature){
         console.log('부적절한 토큰')
-        res.redirect('/?msg=부적절한 토큰')
+        res.clearCookie('AccessToken')
+        res.json({result:false, msg:'부적절한 토큰입니다'})
         return
     }
     let {userid,exp} = JSON.parse(Buffer.from(payload,'base64').toString())
@@ -26,7 +27,7 @@ module.exports = (req,res,next)=>{
     if(nexttime > exp){
         console.log('토큰 만료')
         res.clearCookie('AccessToken')
-        res.redirect('/?msg=토큰만료')
+        res.json({result:false, msg:'만료된 토큰입니다'})
         return
     }
     req.userid = userid;

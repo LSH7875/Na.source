@@ -1,0 +1,48 @@
+#chat{
+    width:400px;
+    height:600px;
+    background:lightblue;
+    overflow: auto;
+    overflow-y:scroll;
+}
+
+#chat > div > span{
+    display:inline-block;
+    
+    padding:7px 14px;
+    border-radius:15px;
+}
+
+#chat > div{
+    display:block;
+    height:100px;
+    padding:5px;
+}
+
+#chat > div> span.you{
+    float:left;
+    background: lightyellow;
+}
+
+#chat > div> span.my{
+    float:right;
+    background:white;
+}
+
+#chatINputArea{
+    width:400px;
+    padding: 5px 7px;
+
+}
+
+#chatINputArea > input{
+    width:200px;
+    padding:7px 14px;
+    border:1px solid #555d;
+}
+
+#chatINputArea > button{
+    padding:7px 14px;
+    background :#eee;
+    border:1px solid #999999;
+}

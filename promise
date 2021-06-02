@@ -1,0 +1,5 @@
+promise
+
+const pr = new Promise(()=>{
+    callback: 함수 안에서 함수를 리턴해줄때
+})
